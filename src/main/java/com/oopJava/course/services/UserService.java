@@ -13,6 +13,8 @@ import com.oopJava.course.repositories.UserRepository;
 import com.oopJava.course.services.exceptions.DataBaseException;
 import com.oopJava.course.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 
 @Service
 public class UserService {
@@ -42,13 +44,16 @@ public void delete(Long id) {
 	}catch(DataIntegrityViolationException e) {
 		throw new DataBaseException(e.getMessage());
 	}
-	
 }
 
 public User update(Long id, User obj) {
-	User entity = repository.getReferenceById(id);
-	updateData(entity, obj);
-	return repository.save(entity);
+	try {
+		User entity = repository.getReferenceById(id);
+		updateData(entity, obj);
+		return repository.save(entity);
+	} catch(EntityNotFoundException e) {
+		throw new ResourceNotFoundException(id);
+	}
 }
 
 private void updateData(User entity, User obj) {
